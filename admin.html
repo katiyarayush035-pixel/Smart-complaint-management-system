@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - Smart Complaint Management</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        .navbar {
+            background: #111827;
+            color: white;
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h2 {
+            font-size: 22px;
+        }
+
+        .navbar span {
+            color: #9ca3af;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 30px auto;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card h3 {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .dashboard-header h2 {
+            font-size: 22px;
+        }
+
+        #searchInput {
+            padding: 11px 15px;
+            width: 280px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+            font-size: 14px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pending {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .progress {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .resolved {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        select {
+            padding: 7px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 900px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #searchInput {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .navbar {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <h2>Smart Complaint Management</h2>
+
+        <div>
+    <span>Admin Dashboard</span>
+
+    <button
+        onclick="logout()"
+        style="
+            margin-left: 15px;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        "
+    >
+        Logout
+    </button>
+</div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- Statistics -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <h3>Total Complaints</h3>
+                <p id="totalComplaints">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <p id="pendingComplaints">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <p id="progressComplaints">0</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>Resolved</h3>
+                <p id="resolvedComplaints">0</p>
+            </div>
+
+        </section>
+
+
+        <!-- Complaint Table -->
+
+        <section class="dashboard-card">
+
+            <div class="dashboard-header">
+
+                <h2>All Complaints</h2>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search complaints..."
+                >
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Complaint ID</th>
+
+                            <th>Name</th>
+
+                            <th>Email</th>
+
+                            <th>Category</th>
+
+                            <th>Description</th>
+
+                            <th>Status</th>
+
+                            <th>Update</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="complaintsTable">
+
+                        <tr>
+
+                            <td colspan="7" class="loading">
+                                Loading complaints...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+
+        const API_BASE = location.port === "3000" ? "" : "http://localhost:3000";
+
+        let complaints = [];
+
+        function escapeHtml(value) {
+            return String(value == null ? "" : value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function getToken() {
+            const token = localStorage.getItem("adminToken");
+
+            if (!token) {
+                window.location.href = "admin-login.html";
+                return null;
+            }
+
+            return token;
+        }
+
+        function sessionExpired() {
+            localStorage.removeItem("adminToken");
+            alert("Your login session has expired. Please login again.");
+            window.location.href = "admin-login.html";
+        }
+
+
+        // ===============================
+        // LOAD COMPLAINTS
+        // ===============================
+
+        async function loadComplaints() {
+
+            const token = getToken();
+
+            if (!token) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "/complaints",
+                    { headers: { "Authorization": "Bearer " + token } }
+                );
+
+                if (response.status === 401) {
+                    sessionExpired();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    complaints = data.complaints;
+
+                    applySearch();
+
+                    updateStatistics(complaints);
+
+                } else {
+
+                    showTableMessage(data.message || "Failed to load complaints.");
+
+                }
+
+            } catch (error) {
+
+                console.error("Error loading complaints:", error);
+
+                showTableMessage("Unable to connect to server.");
+
+            }
+        }
+
+        function showTableMessage(text) {
+            document.getElementById("complaintsTable").innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading">${escapeHtml(text)}</td>
+                </tr>
+            `;
+        }
+
+
+        // ===============================
+        // DISPLAY COMPLAINTS
+        // ===============================
+
+        function displayComplaints(data) {
+
+            const table = document.getElementById("complaintsTable");
+
+            if (data.length === 0) {
+                showTableMessage("No complaints found.");
+                return;
+            }
+
+            table.innerHTML = data.map(function (complaint) {
+
+                let statusClass = "pending";
+
+                if (complaint.status === "In Progress") {
+                    statusClass = "progress";
+                }
+
+                if (complaint.status === "Resolved") {
+                    statusClass = "resolved";
+                }
+
+                const id = escapeHtml(complaint.complaint_id);
+
+                return `
+                    <tr>
+                        <td><strong>${id}</strong></td>
+                        <td>${escapeHtml(complaint.name)}</td>
+                        <td>${escapeHtml(complaint.email)}</td>
+                        <td>${escapeHtml(complaint.category)}</td>
+                        <td>${escapeHtml(complaint.description)}</td>
+                        <td>
+                            <span class="status ${statusClass}">
+                                ${escapeHtml(complaint.status)}
+                            </span>
+                        </td>
+                        <td>
+                            <select data-id="${id}">
+                                ${["Pending", "In Progress", "Resolved"].map(function (option) {
+                                    return `<option value="${option}"
+                                        ${complaint.status === option ? "selected" : ""}>
+                                        ${option}
+                                    </option>`;
+                                }).join("")}
+                            </select>
+                        </td>
+                    </tr>
+                `;
+
+            }).join("");
+
+        }
+
+        // One listener for every status dropdown
+        document
+            .getElementById("complaintsTable")
+            .addEventListener("change", function (event) {
+
+                const select = event.target.closest("select[data-id]");
+
+                if (select) {
+                    updateStatus(select.dataset.id, select.value);
+                }
+
+            });
+
+
+        // ===============================
+        // UPDATE STATISTICS
+        // ===============================
+
+        function updateStatistics(data) {
+
+            document.getElementById("totalComplaints").textContent =
+                data.length;
+
+            document.getElementById("pendingComplaints").textContent =
+                data.filter(c => c.status === "Pending").length;
+
+            document.getElementById("progressComplaints").textContent =
+                data.filter(c => c.status === "In Progress").length;
+
+            document.getElementById("resolvedComplaints").textContent =
+                data.filter(c => c.status === "Resolved").length;
+
+        }
+
+
+        // ===============================
+        // UPDATE STATUS
+        // ===============================
+
+        async function updateStatus(complaintId, status) {
+
+            const token = getToken();
+
+            if (!token) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    API_BASE + "/complaints/" + encodeURIComponent(complaintId) + "/status",
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({ status: status })
+                    }
+                );
+
+                if (response.status === 401) {
+                    sessionExpired();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(data.message || "Failed to update status.");
+                }
+
+                // Reload either way so the table always matches the database
+                loadComplaints();
+
+            } catch (error) {
+
+                console.error("Update error:", error);
+
+                alert("Unable to update complaint.");
+
+                loadComplaints();
+
+            }
+        }
+
+
+        // ===============================
+        // SEARCH
+        // ===============================
+
+        function applySearch() {
+
+            const search =
+                document.getElementById("searchInput").value.trim().toLowerCase();
+
+            const filtered = complaints.filter(function (complaint) {
+
+                return [
+                    complaint.complaint_id,
+                    complaint.name,
+                    complaint.email,
+                    complaint.category,
+                    complaint.status
+                ].some(function (field) {
+                    return String(field || "").toLowerCase().includes(search);
+                });
+
+            });
+
+            displayComplaints(filtered);
+
+        }
+
+        document
+            .getElementById("searchInput")
+            .addEventListener("input", applySearch);
+
+
+        // ===============================
+        // LOGOUT
+        // ===============================
+
+        function logout() {
+
+            localStorage.removeItem("adminToken");
+
+            window.location.href = "admin-login.html";
+
+        }
+
+
+        // Load when page opens
+        loadComplaints();
+
+    </script>
+
+</body>
+
+</html>

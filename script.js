@@ -2,8 +2,8 @@
 // SETTINGS + HELPERS
 // ===============================
 
-// Works whether you open the page via http://localhost:3000 or by double-clicking the file
-const API_BASE = location.port === "3000" ? "" : "http://localhost:3000";
+// Works whether you open the page via https://smart-complaint-management-system-fmnj.onrender.com/ or by double-clicking the file
+const API_BASE = location.port === "3000" ? "" : "https://smart-complaint-management-system-fmnj.onrender.com/";
 
 // Prevents user-entered text from being run as HTML (XSS)
 function escapeHtml(value) {

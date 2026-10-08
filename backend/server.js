@@ -53,7 +53,7 @@ function authenticateAdmin(req, res, next) {
 }
 
 // ===============================
-// SERVE THE FRONTEND (optional: open https://smart-complaint-management-system-fmnj.onrender.com/)
+// SERVE THE FRONTEND (optional: open https://smart-complaint-management-system-fmnj.onrender.com)
 // Only these files are exposed, so backend/.env is never reachable.
 // ===============================
 

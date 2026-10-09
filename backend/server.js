@@ -6,7 +6,7 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { pool, initDb } = require("./db");
+const { pool, initDb, ensureAdmin } = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -327,6 +327,7 @@ app.use(function (err, req, res, next) {
 // ===============================
 
 initDb()
+    .then(ensureAdmin)
     .then(function () {
         console.log("Connected to MySQL database!");
 

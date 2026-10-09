@@ -4,8 +4,7 @@
   "description": "Backend API for the Smart Complaint Management System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "create-admin": "node createAdmin.js"
+    "start": "node server.js"
   },
   "license": "ISC",
   "type": "commonjs",

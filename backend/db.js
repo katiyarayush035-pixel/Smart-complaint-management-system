@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const mysql = require("mysql2/promise");
+const bcrypt = require("bcryptjs");
 
 const config = {
     host: process.env.DB_HOST || "localhost",
@@ -40,4 +41,30 @@ async function initDb() {
     `);
 }
 
-module.exports = { pool, initDb };
+// Creates (or updates) the admin account from ADMIN_USERNAME / ADMIN_PASSWORD.
+// Runs on every startup, so the admin exists on a fresh/deployed database and
+// changing ADMIN_PASSWORD in the hosting dashboard resets the password.
+async function ensureAdmin() {
+    const username = String(process.env.ADMIN_USERNAME || "").trim();
+    const password = String(process.env.ADMIN_PASSWORD || "");
+
+    if (!username || !password) {
+        const [rows] = await pool.query("SELECT COUNT(*) AS total FROM admins");
+        if (rows[0].total === 0) {
+            console.log("Warning: no admin exists. Set ADMIN_USERNAME and ADMIN_PASSWORD environment variables and restart.");
+        }
+        return;
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await pool.query(
+        `INSERT INTO admins (username, password) VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE password = VALUES(password)`,
+        [username, hash]
+    );
+
+    console.log("Admin account ready: " + username);
+}
+
+module.exports = { pool, initDb, ensureAdmin };

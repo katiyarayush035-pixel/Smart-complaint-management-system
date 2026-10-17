@@ -58,7 +58,10 @@ function authenticateAdmin(req, res, next) {
 // ===============================
 
 const FRONTEND_DIR = path.join(__dirname, "..");
-const FRONTEND_FILES = ["index.html", "admin.html", "admin-login.html", "script.js", "style.css"];
+const FRONTEND_FILES = [
+    "index.html", "admin.html", "admin-login.html",
+    "script.js", "style.css", "fx.js", "admin.js", "admin.css"
+];
 
 app.get("/", function (req, res) {
     res.sendFile(path.join(FRONTEND_DIR, "index.html"));
@@ -72,6 +75,51 @@ FRONTEND_FILES.forEach(function (file) {
 
 app.get("/api/health", function (req, res) {
     res.json({ message: "Smart Complaint Management API is running!" });
+});
+
+// ===============================
+// PUBLIC STATS (counts only - no personal data)
+// Used by the home page for the live counters.
+// ===============================
+
+app.get("/api/stats", async function (req, res) {
+    try {
+        const [byStatus] = await pool.query(
+            "SELECT status, COUNT(*) AS count FROM complaints GROUP BY status"
+        );
+        const [byCategory] = await pool.query(
+            "SELECT category, COUNT(*) AS count FROM complaints GROUP BY category"
+        );
+
+        const statuses = { "Pending": 0, "In Progress": 0, "Resolved": 0 };
+        byStatus.forEach(function (row) {
+            if (row.status in statuses) statuses[row.status] = Number(row.count);
+        });
+
+        const categories = {};
+        CATEGORIES.forEach(function (name) { categories[name] = 0; });
+        byCategory.forEach(function (row) {
+            if (row.category in categories) categories[row.category] = Number(row.count);
+        });
+
+        const total = statuses["Pending"] + statuses["In Progress"] + statuses["Resolved"];
+
+        res.json({
+            success: true,
+            stats: {
+                total: total,
+                pending: statuses["Pending"],
+                inProgress: statuses["In Progress"],
+                resolved: statuses["Resolved"],
+                resolutionRate: total ? Math.round((statuses["Resolved"] / total) * 100) : 0,
+                categories: categories
+            }
+        });
+    } catch (error) {
+        console.log("Stats error:", error);
+
+        res.status(500).json({ success: false, message: "Failed to load stats" });
+    }
 });
 
 // ===============================

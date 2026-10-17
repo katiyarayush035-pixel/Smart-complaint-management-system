@@ -1,210 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Login</title>
+    <title>Admin Login - Smart Complaint Management</title>
 
-    <style>
+    <script>
+        try {
+            var t = localStorage.getItem("theme");
+            if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+        } catch (e) { }
+    </script>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f3f4f6;
-        }
-
-        .login-box {
-            width: 380px;
-            background: white;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .login-box h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .login-box p {
-            text-align: center;
-            color: #6b7280;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 8px;
-            background: #111827;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1f2937;
-        }
-
-        #message {
-            margin-top: 15px;
-            text-align: center;
-            color: #dc2626;
-        }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
 
 </head>
 
 <body>
 
-    <div class="login-box">
+    <canvas class="backdrop" id="backdrop" aria-hidden="true"></canvas>
 
-        <h1>Admin Login</h1>
+    <main class="login-page">
 
-        <p>Smart Complaint Management System</p>
-
-        <form id="loginForm">
-
-            <div class="form-group">
-
-                <label for="username">Username</label>
-
-                <input
-                    type="text"
-                    id="username"
-                    placeholder="Enter username"
-                    required
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">Password</label>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter password"
-                    required
-                >
-
-            </div>
-
-
-            <button type="submit">
-                Login
+        <div class="login-top">
+            <a class="back-link" href="index.html">← Back to the complaint site</a>
+            <button class="icon-btn theme-toggle" data-theme-toggle type="button" aria-label="Switch to light theme" aria-pressed="false">
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
             </button>
+        </div>
 
-        </form>
+        <div class="login-box" id="loginBox">
 
-        <div id="message"></div>
+            <div class="logo">
+                <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+                    <rect x="2" y="4" width="28" height="20" rx="6" fill="var(--brand)"></rect>
+                    <path d="M9 24v5l6-5z" fill="var(--brand)"></path>
+                    <path d="M10 14l4 4 8-8" fill="none" stroke="var(--brand-ink)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <div>Smart<span>Complaint</span></div>
+            </div>
 
-    </div>
+            <h1>Admin login</h1>
+            <p class="login-sub">Sign in to review and update complaints.</p>
 
+            <form id="loginForm" novalidate>
 
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter username" autocomplete="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" required>
+                        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" aria-pressed="false">Show</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span id="loginLabel">Sign in</span>
+                </button>
+
+            </form>
+
+            <div class="login-error" id="message" role="alert"></div>
+
+        </div>
+
+    </main>
+
+    <script src="fx.js"></script>
     <script>
 
-    const API_BASE = location.port === "3000" ? "" : "https://smart-complaint-management-system-fmnj.onrender.com";
+        startBackdrop(document.getElementById("backdrop"));
 
-    // Already logged in? Go straight to the dashboard
-    if (localStorage.getItem("adminToken")) {
-        window.location.href = "admin.html";
-    }
+        // Already logged in? Go straight to the dashboard
+        try {
+            if (localStorage.getItem("adminToken")) {
+                window.location.href = "admin.html";
+            }
+        } catch (e) { /* storage blocked */ }
 
-    document
-        .getElementById("loginForm")
-        .addEventListener("submit", async function (event) {
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+        const pwToggle = document.getElementById("pwToggle");
+        const message = document.getElementById("message");
+        const loginBox = document.getElementById("loginBox");
+        const loginBtn = document.getElementById("loginBtn");
 
-            event.preventDefault();
+        pwToggle.addEventListener("click", function () {
+            const show = passwordInput.type === "password";
+            passwordInput.type = show ? "text" : "password";
+            pwToggle.textContent = show ? "Hide" : "Show";
+            pwToggle.setAttribute("aria-pressed", show ? "true" : "false");
+            pwToggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
 
-            const username =
-                document.getElementById("username").value.trim();
+        function fail(text) {
+            message.textContent = text;
+            loginBox.classList.remove("shake");
+            void loginBox.offsetWidth; // restart the animation
+            loginBox.classList.add("shake");
+        }
 
-            const password =
-                document.getElementById("password").value;
+        document
+            .getElementById("loginForm")
+            .addEventListener("submit", async function (event) {
 
-            const message =
-                document.getElementById("message");
+                event.preventDefault();
 
-            const button =
-                this.querySelector("button[type='submit']");
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
 
-            message.textContent = "";
-            button.disabled = true;
+                message.textContent = "";
 
-            try {
+                if (!username || !password) {
+                    fail("Enter your username and password.");
+                    (username ? passwordInput : usernameInput).focus();
+                    return;
+                }
 
-                const response = await fetch(
-                    API_BASE + "/admin/login",
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ username, password })
+                loginBtn.disabled = true;
+                loginBtn.classList.add("loading");
+                document.getElementById("loginLabel").textContent = "Signing in…";
+
+                try {
+
+                    const response = await fetch(
+                        API_BASE + "/admin/login",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ username, password })
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (data.success && data.token) {
+
+                        try { localStorage.setItem("adminToken", data.token); } catch (e) { }
+
+                        document.getElementById("loginLabel").textContent = "Welcome back";
+                        window.location.href = "admin.html";
+                        return;
+
                     }
-                );
 
-                const data = await response.json();
+                    fail(data.message || "Login failed.");
 
-                if (data.success && data.token) {
+                } catch (error) {
 
-                    localStorage.setItem("adminToken", data.token);
+                    console.error("Login error:", error);
 
-                    window.location.href = "admin.html";
-
-                } else {
-
-                    message.textContent = data.message || "Login failed.";
+                    fail("Can't reach the server. Check your connection and try again.");
 
                 }
 
-            } catch (error) {
+                loginBtn.disabled = false;
+                loginBtn.classList.remove("loading");
+                document.getElementById("loginLabel").textContent = "Sign in";
 
-                console.error("Login error:", error);
-
-                message.textContent = "Unable to connect to server.";
-
-            } finally {
-
-                button.disabled = false;
-
-            }
-
-        });
+            });
 
     </script>
 
